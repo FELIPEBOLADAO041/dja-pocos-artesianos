@@ -22,6 +22,58 @@ document.querySelectorAll('#nav a').forEach(link => {
   });
 });
 
+/* ---------- vídeo: capa → modal ---------- */
+(function () {
+  const player = document.getElementById('video-player');
+  if (!player) return;
+
+  const modal = document.getElementById('video-modal');
+  const frame = document.getElementById('video-frame');
+  const fechar = document.getElementById('video-close');
+
+  const ID = 'dq-F6xP5usw';
+  /* domínio normal (não o nocookie) + referrerpolicy: sem isso o YouTube
+     devolve erro 153 quando a página é aberta sem referrer, ex.: file:// */
+  const EMBED = `https://www.youtube.com/embed/${ID}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+
+  /* aberto direto do disco o embed não funciona: manda pro YouTube */
+  const semServidor = location.protocol === 'file:';
+
+  function abrir() {
+    if (semServidor) {
+      window.open(`https://www.youtube.com/watch?v=${ID}`, '_blank', 'noopener');
+      return;
+    }
+
+    /* o iframe só nasce no clique: nada de YouTube carregando no fundo */
+    frame.innerHTML = `<iframe src="${EMBED}" title="Vídeo da DJA Manutenções"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen></iframe>`;
+    modal.hidden = false;
+    document.body.classList.add('is-locked');
+    fechar.focus();
+  }
+
+  function fechado() {
+    modal.hidden = true;
+    frame.innerHTML = '';           /* remove o iframe = para o áudio */
+    document.body.classList.remove('is-locked');
+    player.focus();
+  }
+
+  player.addEventListener('click', abrir);
+  player.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); }
+  });
+
+  fechar.addEventListener('click', fechado);
+  modal.addEventListener('click', e => { if (e.target === modal) fechado(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.hidden) fechado();
+  });
+})();
+
 /* ---------- formulário → WhatsApp ---------- */
 const form = document.getElementById('form-contato');
 
